@@ -4,8 +4,11 @@ Preparing the file that contain "distance matrix file path", and adjusting my ya
 finally running the willowj: java -jar -Dlog4j.configurationFile=file:"/home/abera/data1/data1/five_genes/willowTestData/gdr.log4j2.xml" WillowJ.jar -c "/home/abera/data1/data1/five_genes/willowTestData/willowj_calcGDR_v5.yaml"
 After running it Only one gene's results were produced(i.e., ENSG00000138109___CYP2C9__dist_max.tsv) and the output file " AberaTest_GDR_Calculation__five_genes_distmats_list__Population__gdr.tsv" was empiity.
 # Based on these information how I can over come the error and get the exact results for all five genes?
-## here is the error after running willowj:
-I used the distance matrix you send me on dropbox (distmats) and fixed every thing as neccessary to run willowj.
+
+I have used the "distance_matrices" you send me through dropbox, both new_sample_data.tsv and group_data.tsv that I was used for one gene last 7 months ago, yaml file is "willowj_calcGDR_v5.yaml".
+And I have adjusted the required information for willowj.
+Then ruuning willowj command here: abera@AberaSam:~/data1/data1/five_genes/willowTestData$ java -jar -Dlog4j.configurationFile=file:"/home/abera/data1/data1/five_genes/willowTestData/gdr.log4j2.xml" WillowJ.jar -c "/home/abera/data1/data1/five_genes/willowTestData/willowj_calcGDR_v5.yaml"
+# After finishing willowj I get the error that willowj does not calculated the GDR_value for "ENSG00000174469___CNTNAP2__dist_max.tsv.gz" at line number 44 below and the error says "ava.lang.ArrayIndexOutOfBoundsException: Index -1 out of bounds for length 10" at line number 45 below.
 Hre is the command I run: abera@AberaSam:~/data1/data1/five_genes/willowTestData$ java -jar -Dlog4j.configurationFile=file:"/home/abera/data1/data1/five_genes/willowTestData/gdr.log4j2.xml" WillowJ.jar -c "/home/abera/data1/data1/five_genes/willowTestData/willowj_calcGDR_v5.yaml"
 10:18:44.774 [main] INFO   - initializing
 10:18:44.789 [main] INFO   - parse arguments
@@ -44,4 +47,4 @@ java.lang.ArrayIndexOutOfBoundsException: Index -1 out of bounds for length 10
 	at willow.GDRCalculator.calcGDRsInList(GDRCalculator.java:670)
 	at willow.GDRCalculator.executeGDRCommand(GDRCalculator.java:199)
 	at willow.WillowJ.main(WillowJ.java:30)
-# The error is found on line number 41 the willowj can't calculate for "ENSG00000174469___CNTNAP2__dist_max.tsv.gz".
+
