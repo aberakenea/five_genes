@@ -1,73 +1,39 @@
+import numpy as np
 import pandas as pd
-import json
+import seaborn as sns
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
-def find_min_max_gdr(file_path):
-    """
-    Reads a TSV file, calculates min and max GDR values for each gene and *sub-population*.
+np.random.seed(42)
+super_gdr = np.random.normal(loc=0.7, scale=0.1, size=25)
+sub_gdr = np.random.normal(loc=0.7, scale=0.1, size=130)
 
-    Args:
-        file_path (str): The path to the TSV file.
+super_gdr = np.clip(super_gdr, 0.2, 1.1)
+sub_gdr = np.clip(sub_gdr, 0.2, 1.1)
 
-    Returns:
-        dict: A dictionary where keys are gene names and values are dictionaries
-              containing min/max GDR values, INCLUDING the specific sub-population
-              that has those values. Returns an empty dictionary if an error occurs.
-    """
-    try:
-        df = pd.read_csv(file_path, sep='\t')
-        genes = df.iloc[:, 0].tolist()
-        sub_population_cols = df.columns[1:].tolist()
-        result = {}
-        for i, gene in enumerate(genes):
-            result[gene] = {}
-            gene_values = {}
-            for col in sub_population_cols:
-                try:
-                    gdr_value = float(df.iloc[i, df.columns.get_loc(col)])
-                    if not pd.isna(gdr_value):
-                        gene_values[col] = gdr_value
-                except (ValueError, KeyError) as e:
-                    print(f"Warning: Could not extract value from column '{col}' for gene '{gene}'. Skipping. Error: {e}")
-                    continue
+df = pd.DataFrame({
+    'GDR': np.concatenate([super_gdr, sub_gdr]),
+    'level': ['super'] * len(super_gdr) + ['sub'] * len(sub_gdr)
+})
 
-            if not gene_values:
-                print(f"Warning: No valid GDR values found for gene '{gene}'. Skipping.")
-                result[gene] = {'min': float('NaN'), 'max': float('NaN'), 'min_sub_pop': None, 'max_sub_pop': None}
-                continue
-            min_sub_pop = min(gene_values, key=gene_values.get)
-            min_gdr = gene_values[min_sub_pop]
-            max_sub_pop = max(gene_values, key=gene_values.get)
-            max_gdr = gene_values[max_sub_pop]
-            result[gene] = {
-                'min': round(min_gdr, 4),
-                'max': round(max_gdr, 4),
-                'min_sub_pop': min_sub_pop,
-                'max_sub_pop': max_sub_pop
-            }
+sns.set_style("whitegrid")
+plt.figure(figsize=(8, 5))
 
-        return result
+colors = {"super": "orange", "sub": "green"}
+sns.kdeplot(data=df, x="GDR", hue="level", fill=True, common_norm=False, palette=colors)
 
-    except FileNotFoundError:
-        print(f"Error: File not found at path: {file_path}")
-        return {}
-    except pd.errors.EmptyDataError:
-        print(f"Error: The file at {file_path} is empty.")
-        return {}
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        return {}
+plt.xlabel("GDR", fontsize=12)
+plt.ylabel("Density", fontsize=12)
+plt.xticks([0.2, 0.7, 1.1], labels=["0.2", "0.7", "1.1"], fontsize=10)  # Set X-axis ticks
+plt.yticks(np.arange(0, 10, 2), fontsize=10)  # Set y-axis ticks
 
-file_path = "/home/abera/data1/data1/five_genes/AberaTest__five_genes_distance_matrice_list__Population__gdr.tsv"
-output_file = "/home/abera/data1/data1/five_genes/five_genes_gdr_results.json"
+legend_patches = [
+    mpatches.Patch(color="green", label="sub"),
+    mpatches.Patch(color="orange", label="super")
+]
+plt.legend(handles=legend_patches, title="level", title_fontsize=12, fontsize=10, loc="upper right", frameon=True)
 
-result = find_min_max_gdr(file_path)
-
-if result:
-    try:
-        with open(output_file, "w") as f:
-            json.dump(result, f, indent=4)
-        print(f"Results saved to {output_file}")
-    except IOError as e:
-        print(f"Error: Could not write to file {output_file}. Error: {e}")
-else:
-    print("No results were saved due to errors.")
+output_path = "/home/abera/data1/data1/five_genes/gdr_density_plot.png"
+plt.savefig(output_path, dpi=300, bbox_inches='tight')
+plt.show()
+print(f"Density plot saved at: {output_path}")
